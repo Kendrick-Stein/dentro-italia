@@ -9,12 +9,13 @@ test("exports the finished Italian journey as static HTML", async () => {
   assert.match(html, /SCORRI PER APRIRE/);
   assert.match(html, /UNA STORIA DI LINGUA, ARTE E AMICIZIA/);
   assert.match(html, /ENTRA NEL VIAGGIO/);
-  assert.match(html, /Mi chiamo… Piacere!/);
+  assert.match(html, /Mi chiamo…/);
   assert.match(html, /Grazie per/);
   assert.match(html, /questo viaggio/);
   assert.match(html, /\/characters\/poses\/teacher-action\.webp/);
   assert.doesNotMatch(html, /[\u3400-\u9fff]/);
   assert.doesNotMatch(html, /ASCOLTA|speechSynthesis/);
+  assert.doesNotMatch(html, /class="scene-phrase|<small>FRASE<\/small>/);
   assert.doesNotMatch(html, /ARCHIVIO \/ OPERE INCONTRATE/);
   assert.doesNotMatch(html, /codex-preview|react-loading-skeleton|Your site is taking shape/i);
 });
@@ -37,6 +38,7 @@ test("ships interaction, accessibility, and social assets", async () => {
   assert.match(page, /className="parchment-hero"/);
   assert.match(page, /moveLight/);
   assert.match(page, /posePath/);
+  assert.doesNotMatch(page, /className="scene-phrase/);
   assert.match(page, /setFoundWords/);
   assert.match(layout, /openGraph/);
   assert.match(layout, /twitter/);

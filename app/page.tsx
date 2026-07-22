@@ -28,13 +28,13 @@ const journeyChapters = chapters.filter((chapter) =>
 );
 
 const wordSpotPatterns = [
-  [{ left: "26%", top: "34%" }, { left: "73%", top: "31%" }],
-  [{ left: "18%", top: "43%" }, { left: "78%", top: "36%" }],
-  [{ left: "34%", top: "30%" }, { left: "67%", top: "41%" }],
-  [{ left: "22%", top: "31%" }, { left: "76%", top: "48%" }],
-  [{ left: "28%", top: "39%" }, { left: "69%", top: "29%" }],
-  [{ left: "20%", top: "37%" }, { left: "77%", top: "40%" }],
-  [{ left: "31%", top: "31%" }, { left: "70%", top: "35%" }],
+  [{ left: "49%", top: "34%" }, { left: "78%", top: "31%" }],
+  [{ left: "18%", top: "43%" }, { left: "51%", top: "36%" }],
+  [{ left: "47%", top: "30%" }, { left: "73%", top: "41%" }],
+  [{ left: "20%", top: "31%" }, { left: "54%", top: "48%" }],
+  [{ left: "48%", top: "39%" }, { left: "75%", top: "29%" }],
+  [{ left: "18%", top: "37%" }, { left: "52%", top: "40%" }],
+  [{ left: "49%", top: "31%" }, { left: "74%", top: "35%" }],
 ];
 
 type FoundWords = Record<string, string[]>;
@@ -101,24 +101,26 @@ export default function Home() {
           const rect = intro.getBoundingClientRect();
           const travel = Math.max(1, intro.offsetHeight - viewportHeight);
           const rawProgress = Math.max(0, Math.min(1, -rect.top / travel));
-          const eased = rawProgress * rawProgress * (3 - 2 * rawProgress);
-          const reveal = Math.max(0, Math.min(1, (rawProgress - 0.12) / 0.62));
+          const openingProgress = Math.max(0, Math.min(1, rawProgress / 0.72));
+          const eased = openingProgress * openingProgress * (3 - 2 * openingProgress);
+          const reveal = Math.max(0, Math.min(1, (rawProgress - 0.24) / 0.66));
 
           intro.style.setProperty("--intro-progress", rawProgress.toFixed(3));
           intro.style.setProperty("--intro-ambient-scale", (1 + rawProgress * 0.08).toFixed(3));
           intro.style.setProperty("--intro-art-scale", (1.12 - rawProgress * 0.08).toFixed(3));
-          intro.style.setProperty("--parchment-width", `${18 + eased * 82}vw`);
-          intro.style.setProperty("--parchment-height", `${48 + eased * 52}vh`);
+          intro.style.setProperty("--parchment-clip", `${49 - eased * 49}%`);
+          intro.style.setProperty("--roll-left", `${49 - eased * 49}%`);
+          intro.style.setProperty("--roll-right", `${51 + eased * 49}%`);
           intro.style.setProperty("--parchment-radius", `${24 - eased * 22}px`);
           intro.style.setProperty("--intro-art-opacity", reveal.toFixed(3));
           intro.style.setProperty("--intro-saturation", (0.08 + reveal * 0.94).toFixed(3));
           intro.style.setProperty("--intro-sepia", (0.95 - reveal * 0.87).toFixed(3));
-          const partyOpacity = Math.max(0, Math.min(1, (rawProgress - 0.46) / 0.34));
+          const partyOpacity = Math.max(0, Math.min(1, (rawProgress - 0.58) / 0.24));
           intro.style.setProperty("--intro-party-opacity", partyOpacity.toFixed(3));
           intro.style.setProperty("--intro-party-shift", `${(1 - partyOpacity) * 35}px`);
           intro.style.setProperty("--intro-title-scale", (1 - eased * 0.16).toFixed(3));
           intro.style.setProperty("--intro-cue-opacity", Math.max(0, 1 - rawProgress * 2.2).toFixed(3));
-          intro.style.setProperty("--roll-depth", `${28 - eased * 23}px`);
+          intro.style.setProperty("--roll-depth", `${24 - eased * 14}px`);
         }
 
         document.querySelectorAll<HTMLElement>(".story-chapter").forEach((chapter) => {
@@ -342,7 +344,6 @@ export default function Home() {
                 <div className="chapter-wash" aria-hidden="true" />
                 <div className="chapter-light" aria-hidden="true" />
                 <div className="scene-transition" aria-hidden="true" />
-                <div className="portal-frame" aria-hidden="true" />
 
                 <div className="chapter-topline">
                   <span>{String(chapterIndex + 1).padStart(2, "0")} / {String(journeyChapters.length).padStart(2, "0")}</span>
@@ -397,11 +398,6 @@ export default function Home() {
                     <strong>{activeWord.word}</strong>
                   </div>
                 )}
-
-                <div className="scene-phrase phrase-only">
-                  <small>FRASE</small>
-                  <strong>{chapter.lesson.phrase}</strong>
-                </div>
 
                 <div className="scroll-cue" aria-hidden="true"><span>SCORRI</span><i /></div>
               </div>
