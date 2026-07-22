@@ -6,12 +6,11 @@ test("exports the finished Italian journey as static HTML", async () => {
   const html = await readFile(new URL("../out/index.html", import.meta.url), "utf8");
   assert.match(html, /<title>Dentro l’Italia — 我们的意大利语旅程<\/title>/i);
   assert.match(html, /DENTRO/);
-  assert.match(html, /Una storia di lingua, arte e amicizia/);
-  assert.match(html, /ENTRA NELLA STORIA/);
-  assert.match(html, /Il Mago delle Parole/);
-  assert.match(html, /La Cavaliere/);
-  assert.match(html, /La Cartografa/);
-  assert.match(html, /Il Programmatore/);
+  assert.match(html, /SCORRI · ESPLORA · ASCOLTA/);
+  assert.match(html, /ENTRA NEL QUADRO/);
+  assert.match(html, /Mi chiamo… Piacere!/);
+  assert.match(html, /Grazie per questo viaggio/);
+  assert.doesNotMatch(html, /ARCHIVIO \/ OPERE INCONTRATE/);
   assert.doesNotMatch(html, /codex-preview|react-loading-skeleton|Your site is taking shape/i);
 });
 
@@ -27,6 +26,9 @@ test("ships interaction, accessibility, and social assets", async () => {
   assert.match(page, /speechSynthesis/);
   assert.match(page, /aria-modal="true"/);
   assert.match(page, /className="skip-link"/);
+  assert.match(page, /className={`word-spark/);
+  assert.match(page, /className="chapter-reveal"/);
+  assert.match(page, /setFoundWords/);
   assert.match(layout, /openGraph/);
   assert.match(layout, /twitter/);
   assert.match(layout, /\/og\.png/);
