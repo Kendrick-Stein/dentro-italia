@@ -7,6 +7,7 @@ import {
   credits,
   travelers,
   type CharacterPlacement,
+  type TravelerId,
 } from "./story";
 
 const basePath = process.env.NEXT_PUBLIC_BASE_PATH ?? "";
@@ -26,22 +27,115 @@ const journeyChapters = chapters.filter((chapter) =>
   journeyIds.includes(chapter.id as (typeof journeyIds)[number]),
 );
 
-const posePath = (characterId: string, pose: string) =>
+type JourneyId = (typeof journeyIds)[number];
+type QuestCharacter = CharacterPlacement & { image: string };
+type StoryBeat = {
+  kicker: string;
+  title: string;
+  narrative: string;
+  speaker: string;
+  voice: string;
+  cast: QuestCharacter[];
+};
+
+const storyBeats: Record<JourneyId, StoryBeat> = {
+  presentarsi: {
+    kicker: "IL PRIMO VARCO",
+    title: "La porta nel dipinto",
+    narrative: "Il maestro apre il passaggio. La cartografa chiede all’angelo quale arco conduce a Firenze.",
+    speaker: "L’ANGELO",
+    voice: "Seguite la luce tra le colonne.",
+    cast: [
+      { id: "teacher", image: "/characters/quests/teacher-portal-open.webp", left: "47%", bottom: "10%", size: "16%" },
+      { id: "cartographer", image: "/characters/quests/cartographer-painting-talk.webp", left: "69%", bottom: "11%", size: "14%", delay: ".12s" },
+    ],
+  },
+  desiderare: {
+    kicker: "LA PROVA DEL VENTO",
+    title: "Contro il vento",
+    narrative: "Zefiro cerca di respingerli. La cavaliere apre lo scudo mentre il programmatore legge i pigmenti in movimento.",
+    speaker: "VENERE",
+    voice: "Non combattete il vento: attraversatelo.",
+    cast: [
+      { id: "knight", image: "/characters/quests/knight-wind.webp", left: "10%", bottom: "12%", size: "19%" },
+      { id: "programmer", image: "/characters/quests/programmer-scan.webp", left: "34%", bottom: "10%", size: "15%", delay: ".12s" },
+    ],
+  },
+  capire: {
+    kicker: "IL CIRCUITO CELESTE",
+    title: "La scintilla",
+    narrative: "Tra le dita manca un impulso. Il programmatore lo ricostruisce e il maestro tiene stabile la cornice.",
+    speaker: "ADAMO",
+    voice: "Ancora una scintilla.",
+    cast: [
+      { id: "teacher", image: "/characters/quests/teacher-painting-talk.webp", left: "47%", bottom: "10%", size: "15%" },
+      { id: "programmer", image: "/characters/quests/programmer-spark.webp", left: "68%", bottom: "9%", size: "17%", delay: ".12s" },
+    ],
+  },
+  sbagliare: {
+    kicker: "L’ERRORE PRENDE VITA",
+    title: "Il drago nella tempesta",
+    narrative: "Dal temporale fugge un drago d’inchiostro. La cavaliere lo affronta mentre il programmatore calma il cielo.",
+    speaker: "IL VIANDANTE",
+    voice: "Quella creatura non appartiene al paesaggio.",
+    cast: [
+      { id: "knight", image: "/characters/quests/knight-dragon.webp", left: "9%", bottom: "10%", size: "20%" },
+      { id: "programmer", image: "/characters/quests/programmer-storm.webp", left: "35%", bottom: "12%", size: "15%", delay: ".12s" },
+    ],
+  },
+  viaggiare: {
+    kicker: "VENEZIA CAMBIA STRADA",
+    title: "La rotta sull’acqua",
+    narrative: "La mappa non basta: le calli finiscono nei canali. La cartografa traccia una nuova rotta fino al Rialto.",
+    speaker: "IL GONDOLIERE",
+    voice: "Qui il cammino segue la marea.",
+    cast: [
+      { id: "cartographer", image: "/characters/quests/cartographer-route.webp", left: "47%", bottom: "10%", size: "17%" },
+      { id: "programmer", image: "/characters/quests/programmer-painting-talk.webp", left: "70%", bottom: "10%", size: "15%", delay: ".12s" },
+    ],
+  },
+  coraggio: {
+    kicker: "DAVANTI AL GIGANTE",
+    title: "Prima del colpo",
+    narrative: "La cavaliere abbassa la spada davanti a David. Il maestro le ricorda che il coraggio viene prima dell’azione.",
+    speaker: "DAVID",
+    voice: "Prima si decide. Poi si agisce.",
+    cast: [
+      { id: "knight", image: "/characters/quests/knight-david.webp", left: "9%", bottom: "9%", size: "19%" },
+      { id: "teacher", image: "/characters/quests/teacher-painting-talk.webp", left: "35%", bottom: "10%", size: "15%", delay: ".12s" },
+    ],
+  },
+  arrivederci: {
+    kicker: "L’ULTIMO PASSAGGIO",
+    title: "Oltre la cornice",
+    narrative: "Nel giardino di Primavera il gruppo ritrova l’uscita. Il maestro richiude il varco dopo l’ultimo passo.",
+    speaker: "FLORA",
+    voice: "Portate fuori ciò che avete trovato qui.",
+    cast: [
+      { id: "teacher", image: "/characters/quests/teacher-portal-close.webp", left: "47%", bottom: "9%", size: "16%" },
+      { id: "cartographer", image: "/characters/quests/cartographer-lead.webp", left: "70%", bottom: "10%", size: "13%", delay: ".12s" },
+    ],
+  },
+};
+
+const posePath = (characterId: TravelerId, pose: string) =>
   `/characters/poses/${characterId}-${pose}.webp`;
 
 function SceneCharacter({
   placement,
+  imageOverride,
   active,
   index,
 }: {
   placement: CharacterPlacement;
+  imageOverride?: string;
   active: boolean;
   index: number;
 }) {
   const traveler = travelers.find((item) => item.id === placement.id);
   if (!traveler) return null;
 
-  const image = placement.pose ? posePath(placement.id, placement.pose) : traveler.image;
+  const image = imageOverride ?? (placement.pose ? posePath(placement.id, placement.pose) : traveler.image);
   const style = {
     "--character-left": placement.left,
     "--character-bottom": placement.bottom,
@@ -56,7 +150,7 @@ function SceneCharacter({
       style={style}
       aria-hidden="true"
     >
-      <img src={assetUrl(image)} alt="" />
+      <img src={assetUrl(image)} alt="" loading="lazy" decoding="async" />
     </div>
   );
 }
@@ -103,27 +197,36 @@ export default function Home() {
 
         document.querySelectorAll<HTMLElement>(".story-chapter").forEach((chapter) => {
           const rect = chapter.getBoundingClientRect();
-          const sceneProgress = Math.max(
-            0,
-            Math.min(1, (viewportHeight - rect.top) / (rect.height + viewportHeight)),
-          );
+          const travel = Math.max(1, rect.height - viewportHeight);
+          const sceneProgress = Math.max(0, Math.min(1, -rect.top / travel));
           const hasNext = chapter.dataset.hasNext === "true";
+          const entryProgress = Math.max(0, Math.min(1, sceneProgress / 0.2));
+          const entryExit = Math.max(0, Math.min(1, (sceneProgress - 0.2) / 0.1));
+          const questProgress = Math.max(0, Math.min(1, (sceneProgress - 0.29) / 0.13));
+          const questExit = hasNext
+            ? Math.max(0, Math.min(1, (sceneProgress - 0.63) / 0.07))
+            : Math.max(0, Math.min(1, (sceneProgress - 0.82) / 0.12));
           const exitProgress = hasNext
-            ? Math.max(0, Math.min(1, (sceneProgress - 0.67) / 0.28))
+            ? Math.max(0, Math.min(1, (sceneProgress - 0.72) / 0.26))
             : 0;
           const easedExit = exitProgress * exitProgress * (3 - 2 * exitProgress);
-          const passageOpacity = Math.min(1, exitProgress * 5) * Math.min(1, (1 - exitProgress) * 5);
+          const passageProgress = Math.max(0, Math.min(1, (exitProgress - 0.08) / 0.84));
+          const passageOpacity = Math.min(1, exitProgress * 4) * Math.min(1, (1 - exitProgress) * 8);
 
           chapter.style.setProperty("--scene-progress", sceneProgress.toFixed(3));
           chapter.style.setProperty("--scene-zoom", (1.018 + sceneProgress * 0.055).toFixed(3));
           chapter.style.setProperty("--scene-shift-y", `${(sceneProgress - 0.5) * -2.2}%`);
           chapter.style.setProperty("--party-drift", `${(sceneProgress - 0.5) * 22}px`);
+          chapter.style.setProperty("--entry-opacity", (entryProgress * (1 - entryExit)).toFixed(3));
+          chapter.style.setProperty("--entry-x", `${-24 + entryProgress * 72}vw`);
+          chapter.style.setProperty("--quest-opacity", (questProgress * (1 - questExit)).toFixed(3));
+          chapter.style.setProperty("--quest-y", `${(1 - questProgress) * 24}px`);
           chapter.style.setProperty("--current-x", `${easedExit * -8}%`);
           chapter.style.setProperty("--next-clip", `${100 - easedExit * 100}%`);
           chapter.style.setProperty("--next-x", `${(1 - easedExit) * 8}%`);
           chapter.style.setProperty("--content-opacity", Math.max(0, 1 - exitProgress * 1.5).toFixed(3));
           chapter.style.setProperty("--passage-opacity", passageOpacity.toFixed(3));
-          chapter.style.setProperty("--passage-x", `${-18 + easedExit * 128}vw`);
+          chapter.style.setProperty("--passage-x", `${-24 + passageProgress * 132}vw`);
         });
       });
     };
@@ -257,6 +360,7 @@ export default function Home() {
         {journeyChapters.map((chapter, chapterIndex) => {
           const isActive = activeId === chapter.id;
           const nextChapter = journeyChapters[chapterIndex + 1];
+          const beat = storyBeats[chapter.id as JourneyId];
           const chapterStyle = {
             "--chapter-saturation": (0.24 + chapterIndex * 0.11).toFixed(2),
             "--reveal-saturation": (0.82 + chapterIndex * 0.065).toFixed(2),
@@ -316,15 +420,29 @@ export default function Home() {
                 </div>
 
                 <div className="chapter-copy">
-                  <p>{chapter.stage}</p>
-                  <h2>{chapter.title}</h2>
+                  <p>{beat.kicker}</p>
+                  <h2>{beat.title}</h2>
+                  <p className="story-narration">{beat.narrative}</p>
+                  <p className="painting-voice"><span>{beat.speaker}</span>{beat.voice}</p>
+                </div>
+
+                <div className="scene-entry-party" aria-hidden="true">
+                  {travelers.map((traveler, index) => (
+                    <img
+                      key={`${chapter.id}-entry-${traveler.id}`}
+                      src={assetUrl(posePath(traveler.id, "walk"))}
+                      alt=""
+                      style={{ "--entry-person": index } as CSSProperties}
+                    />
+                  ))}
                 </div>
 
                 <div className="scene-cast">
-                  {chapter.characters.map((placement, index) => (
+                  {beat.cast.map((placement, index) => (
                     <SceneCharacter
                       key={`${chapter.id}-${placement.id}`}
                       placement={placement}
+                      imageOverride={placement.image}
                       active={isActive}
                       index={index}
                     />
@@ -334,13 +452,13 @@ export default function Home() {
                 {nextChapter && (
                   <div className="scene-passage" aria-hidden="true">
                     <div className="passage-route">
-                      <span>{chapter.city}</span><i>→</i><span>{nextChapter.city}</span>
+                      <span>{chapter.artwork}</span><i>→</i><span>{nextChapter.artwork}</span>
                     </div>
                     <div className="passage-party">
-                      {chapter.characters.map((placement, index) => (
+                      {travelers.map((traveler, index) => (
                         <img
-                          key={`${chapter.id}-passage-${placement.id}`}
-                          src={assetUrl(posePath(placement.id, "walk"))}
+                          key={`${chapter.id}-passage-${traveler.id}`}
+                          src={assetUrl(posePath(traveler.id, "walk"))}
                           alt=""
                           style={{ "--passage-person": index } as CSSProperties}
                         />
@@ -397,7 +515,7 @@ export default function Home() {
             {journeyChapters.map((chapter, index) => (
               <button type="button" key={chapter.id} onClick={() => scrollToChapter(chapter.id)}>
                 <span>{String(index + 1).padStart(2, "0")}</span>
-                <div><strong>{chapter.title}</strong><small>{chapter.city}</small></div>
+                <div><strong>{storyBeats[chapter.id as JourneyId].title}</strong><small>{chapter.city}</small></div>
                 <div className="index-thumb" aria-hidden="true"><img src={assetUrl(chapter.image)} alt="" /></div>
                 <i aria-hidden="true">→</i>
               </button>

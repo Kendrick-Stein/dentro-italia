@@ -8,16 +8,21 @@ test("exports the finished Italian journey as static HTML", async () => {
   assert.match(html, /DENTRO/);
   assert.match(html, /SCORRI PER ENTRARE/);
   assert.match(html, /UNA STORIA DI LINGUA, ARTE E AMICIZIA/);
-  assert.match(html, /Mi chiamo…/);
+  assert.match(html, /La porta nel dipinto/);
+  assert.match(html, /Il drago nella tempesta/);
+  assert.match(html, /Quella creatura non appartiene al paesaggio/);
   assert.match(html, /Grazie per/);
   assert.match(html, /questo viaggio/);
-  assert.match(html, /\/characters\/poses\/teacher-action\.webp/);
+  assert.match(html, /\/characters\/quests\/teacher-portal-open\.webp/);
+  assert.match(html, /\/characters\/quests\/knight-dragon\.webp/);
+  assert.doesNotMatch(html, /Mi chiamo|Ora capisco|Vorrei/);
   assert.doesNotMatch(html, /[\u3400-\u9fff]/);
   assert.doesNotMatch(html, /ASCOLTA|speechSynthesis/);
   assert.doesNotMatch(html, /class="scene-phrase|class="word-spark|class="word-reveal|class="route-rail/);
   assert.doesNotMatch(html, /PAROLA TROVATA|CERCA 2 PAROLE|PAROLE TROVATE/);
   assert.match(html, /class="opening-art"/);
   assert.match(html, /class="chapter-next-art/);
+  assert.match(html, /class="scene-entry-party"/);
   assert.match(html, /class="passage-party"/);
   assert.doesNotMatch(html, /ARCHIVIO \/ OPERE INCONTRATE/);
   assert.doesNotMatch(html, /codex-preview|react-loading-skeleton|Your site is taking shape/i);
@@ -39,6 +44,9 @@ test("ships interaction, accessibility, and social assets", async () => {
   assert.match(page, /className="journey-opening"/);
   assert.match(page, /className={`chapter-next-art/);
   assert.match(page, /className="passage-party"/);
+  assert.match(page, /className="scene-entry-party"/);
+  assert.match(page, /painting-voice/);
+  assert.match(page, /quest-opacity/);
   assert.match(page, /moveLight/);
   assert.match(page, /posePath/);
   assert.doesNotMatch(page, /word-spark|word-reveal|scene-phrase|route-rail|parchment-hero|setFoundWords/);
@@ -58,6 +66,10 @@ test("ships interaction, accessibility, and social assets", async () => {
     access(new URL("../out/characters/poses/knight-walk.webp", import.meta.url)),
     access(new URL("../out/characters/poses/cartographer-study.webp", import.meta.url)),
     access(new URL("../out/characters/poses/programmer-depart.webp", import.meta.url)),
+    access(new URL("../out/characters/quests/teacher-portal-open.webp", import.meta.url)),
+    access(new URL("../out/characters/quests/cartographer-route.webp", import.meta.url)),
+    access(new URL("../out/characters/quests/knight-dragon.webp", import.meta.url)),
+    access(new URL("../out/characters/quests/programmer-spark.webp", import.meta.url)),
     access(new URL("../out/artworks/school-of-athens.jpg", import.meta.url)),
   ]);
 });

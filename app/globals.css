@@ -3530,6 +3530,13 @@ a {
   text-shadow: 0 2px 14px rgba(0, 0, 0, 0.72);
 }
 
+.passage-route span {
+  max-width: 34vw;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
 .passage-route i {
   font-family: var(--serif);
   font-size: 17px;
@@ -3643,6 +3650,210 @@ a {
 
   .opening-party img,
   .passage-party img {
+    animation: none;
+  }
+}
+
+/* Quest choreography: enter the painting, solve its problem, then continue. */
+.immersive-story .story-chapter {
+  --entry-opacity: 0;
+  --entry-x: -24vw;
+  --quest-opacity: 0;
+  --quest-y: 24px;
+}
+
+.opening-next-art,
+.immersive-story .chapter-art,
+.immersive-story .chapter-reveal,
+.chapter-next-art {
+  background: #0f0e0b;
+}
+
+.opening-next-art img,
+.immersive-story .chapter-art img,
+.immersive-story .chapter-reveal img,
+.chapter-next-art img {
+  object-fit: contain;
+  object-position: center;
+}
+
+.immersive-story .story-chapter .chapter-art,
+.immersive-story .story-chapter.is-active .chapter-art,
+.immersive-story .story-chapter .chapter-reveal,
+.immersive-story .story-chapter:nth-of-type(even) .chapter-art,
+.immersive-story .story-chapter:nth-of-type(even).is-active .chapter-art,
+.immersive-story .story-chapter:nth-of-type(even) .chapter-reveal {
+  transform: translate3d(var(--current-x), 0, 0);
+}
+
+.immersive-story .chapter-copy,
+.immersive-story .story-chapter:nth-of-type(even) .chapter-copy {
+  width: 21vw;
+  opacity: var(--quest-opacity);
+  transform: translateY(var(--quest-y));
+  will-change: opacity, transform;
+}
+
+.immersive-story .chapter-copy .story-narration {
+  max-width: 24rem;
+  margin: 20px 0 0;
+  font-size: clamp(11px, 0.88vw, 14px);
+  font-weight: 400;
+  line-height: 1.58;
+  letter-spacing: 0.02em;
+  opacity: 0.76;
+}
+
+.immersive-story .chapter-copy h2 {
+  max-width: 21vw;
+}
+
+.immersive-story .chapter-copy .painting-voice {
+  max-width: 22rem;
+  margin: 13px 0 0;
+  font-family: var(--serif);
+  font-size: clamp(13px, 1.06vw, 17px);
+  font-weight: 400;
+  font-style: italic;
+  line-height: 1.35;
+  letter-spacing: 0;
+  color: #f0d49a;
+}
+
+.immersive-story .story-chapter:nth-of-type(even) .chapter-copy .story-narration,
+.immersive-story .story-chapter:nth-of-type(even) .chapter-copy .painting-voice {
+  margin-left: auto;
+}
+
+.painting-voice span {
+  display: block;
+  margin-bottom: 4px;
+  font-family: var(--sans);
+  font-size: 7px;
+  font-style: normal;
+  font-weight: 700;
+  letter-spacing: 0.2em;
+  color: var(--cream);
+  opacity: 0.58;
+}
+
+.scene-entry-party {
+  position: absolute;
+  z-index: 18;
+  left: 0;
+  bottom: 6vh;
+  width: min(42vw, 650px);
+  height: 28vh;
+  overflow: visible;
+  opacity: var(--entry-opacity);
+  transform: translate3d(var(--entry-x), 0, 0);
+  will-change: opacity, transform;
+  pointer-events: none;
+}
+
+.scene-entry-party img,
+.passage-party img {
+  position: absolute;
+  bottom: 0;
+  width: 26%;
+  height: 100%;
+  max-width: none;
+  object-fit: contain;
+  object-position: bottom center;
+  filter: drop-shadow(0 12px 10px rgba(0, 0, 0, 0.42));
+  animation: passage-step 900ms ease-in-out infinite alternate;
+}
+
+.scene-entry-party img:nth-child(1),
+.passage-party img:nth-child(1) { left: 0; animation-delay: -0.25s; }
+.scene-entry-party img:nth-child(2),
+.passage-party img:nth-child(2) { left: 20%; animation-delay: -0.7s; }
+.scene-entry-party img:nth-child(3),
+.passage-party img:nth-child(3) { left: 40%; animation-delay: -0.42s; }
+.scene-entry-party img:nth-child(4),
+.passage-party img:nth-child(4) { left: 60%; animation-delay: -0.88s; }
+
+.immersive-story .scene-cast {
+  overflow: visible;
+  opacity: var(--quest-opacity);
+  transform: translateY(var(--quest-y));
+  will-change: opacity, transform;
+}
+
+.immersive-story .scene-character,
+.immersive-story .scene-character.is-visible {
+  height: 42vh;
+  overflow: visible;
+  opacity: 1;
+}
+
+.immersive-story .scene-character img {
+  width: 100%;
+  height: 100%;
+  max-width: none;
+  overflow: visible;
+  object-fit: contain;
+  object-position: bottom center;
+}
+
+.passage-party {
+  width: min(42vw, 650px);
+  height: 28vh;
+  overflow: visible;
+}
+
+.scene-passage {
+  overflow: visible;
+}
+
+@media (max-width: 720px) {
+  .immersive-story .chapter-copy,
+  .immersive-story .story-chapter:nth-of-type(even) .chapter-copy {
+    bottom: 4.5vh;
+  }
+
+  .immersive-story .chapter-copy h2 {
+    max-width: 88vw;
+    font-size: clamp(38px, 11vw, 58px);
+  }
+
+  .immersive-story .chapter-copy .story-narration {
+    max-width: 78vw;
+    margin-top: 12px;
+  }
+
+  .immersive-story .chapter-copy .painting-voice {
+    max-width: 76vw;
+    margin-top: 9px;
+  }
+
+  .scene-entry-party,
+  .passage-party {
+    bottom: 19vh;
+    width: 76vw;
+    height: 20vh;
+  }
+
+  .immersive-story .scene-character,
+  .immersive-story .scene-character.is-visible {
+    bottom: 21vh;
+    width: calc(var(--character-size) * 1.32);
+    height: 23vh;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .scene-entry-party {
+    display: none;
+  }
+
+  .immersive-story .chapter-copy,
+  .immersive-story .scene-cast {
+    opacity: 1;
+    transform: none;
+  }
+
+  .immersive-story .scene-character.is-visible {
     animation: none;
   }
 }
