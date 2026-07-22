@@ -47,6 +47,7 @@ test("ships interaction, accessibility, and social assets", async () => {
   assert.match(page, /className="scene-entry-party"/);
   assert.match(page, /painting-voice/);
   assert.match(page, /quest-opacity/);
+  assert.doesNotMatch(page, /ArrowDown|ArrowUp|PageDown|PageUp/);
   assert.match(page, /moveLight/);
   assert.match(page, /posePath/);
   assert.doesNotMatch(page, /word-spark|word-reveal|scene-phrase|route-rail|parchment-hero|setFoundWords/);
@@ -55,6 +56,9 @@ test("ships interaction, accessibility, and social assets", async () => {
   assert.match(layout, /\/og\.png/);
   assert.match(css, /prefers-reduced-motion:\s*reduce/);
   assert.match(css, /@media \(max-width: 720px\)/);
+  assert.match(css, /scroll-behavior:\s*auto/);
+  assert.match(css, /--scene-art-opacity/);
+  assert.match(css, /object-fit:\s*cover/);
   assert.equal((story.match(/number: "\d\d"/g) ?? []).length, 11);
   assert.doesNotMatch(packageJson, /react-loading-skeleton/);
 

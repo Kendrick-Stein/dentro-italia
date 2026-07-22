@@ -156,7 +156,6 @@ function SceneCharacter({
 }
 
 export default function Home() {
-  const [progress, setProgress] = useState(0);
   const [activeId, setActiveId] = useState(journeyChapters[0].id);
   const [menuOpen, setMenuOpen] = useState(false);
 
@@ -167,11 +166,16 @@ export default function Home() {
     let animationFrame = 0;
 
     const updateScrollScene = () => {
-      cancelAnimationFrame(animationFrame);
+      if (animationFrame) return;
       animationFrame = requestAnimationFrame(() => {
+        animationFrame = 0;
         const viewportHeight = window.innerHeight;
         const scrollable = document.documentElement.scrollHeight - viewportHeight;
-        setProgress(scrollable > 0 ? Math.min(1, window.scrollY / scrollable) : 0);
+        const pageProgress = scrollable > 0 ? Math.min(1, window.scrollY / scrollable) : 0;
+        document.querySelector<HTMLElement>(".progress-value")?.style.setProperty(
+          "transform",
+          `scaleX(${pageProgress})`,
+        );
 
         const intro = document.querySelector<HTMLElement>(".journey-opening");
         if (intro) {
@@ -183,6 +187,8 @@ export default function Home() {
           const titleExit = Math.max(0, Math.min(1, (rawProgress - 0.12) / 0.38));
           const partyEntry = Math.max(0, Math.min(1, rawProgress / 0.16));
           const partyExit = Math.max(0, Math.min(1, (rawProgress - 0.78) / 0.16));
+          const openingWalk = Math.max(0, Math.min(1, (rawProgress - 0.04) / 0.86));
+          const easedWalk = openingWalk * openingWalk * (3 - 2 * openingWalk);
 
           intro.style.setProperty("--opening-current-x", `${eased * -9}%`);
           intro.style.setProperty("--opening-current-opacity", (1 - eased * 0.72).toFixed(3));
@@ -190,7 +196,7 @@ export default function Home() {
           intro.style.setProperty("--opening-next-x", `${(1 - eased) * 9}%`);
           intro.style.setProperty("--opening-title-opacity", (1 - titleExit).toFixed(3));
           intro.style.setProperty("--opening-title-y", `${titleExit * -42}px`);
-          intro.style.setProperty("--opening-party-x", `${-9 + eased * 76}vw`);
+          intro.style.setProperty("--opening-party-x", `${-20 + easedWalk * 122}vw`);
           intro.style.setProperty("--opening-party-opacity", (partyEntry * (1 - partyExit)).toFixed(3));
           intro.style.setProperty("--opening-cue-opacity", Math.max(0, 1 - rawProgress * 2.6).toFixed(3));
         }
@@ -200,30 +206,33 @@ export default function Home() {
           const travel = Math.max(1, rect.height - viewportHeight);
           const sceneProgress = Math.max(0, Math.min(1, -rect.top / travel));
           const hasNext = chapter.dataset.hasNext === "true";
-          const entryProgress = Math.max(0, Math.min(1, sceneProgress / 0.2));
-          const entryExit = Math.max(0, Math.min(1, (sceneProgress - 0.2) / 0.1));
-          const questProgress = Math.max(0, Math.min(1, (sceneProgress - 0.29) / 0.13));
+          const entryProgress = Math.max(0, Math.min(1, sceneProgress / 0.24));
+          const easedEntry = entryProgress * entryProgress * (3 - 2 * entryProgress);
+          const entryExit = Math.max(0, Math.min(1, (sceneProgress - 0.22) / 0.12));
+          const questProgress = Math.max(0, Math.min(1, (sceneProgress - 0.28) / 0.14));
           const questExit = hasNext
-            ? Math.max(0, Math.min(1, (sceneProgress - 0.63) / 0.07))
+            ? Math.max(0, Math.min(1, (sceneProgress - 0.66) / 0.08))
             : Math.max(0, Math.min(1, (sceneProgress - 0.82) / 0.12));
           const exitProgress = hasNext
-            ? Math.max(0, Math.min(1, (sceneProgress - 0.72) / 0.26))
+            ? Math.max(0, Math.min(1, (sceneProgress - 0.64) / 0.34))
             : 0;
           const easedExit = exitProgress * exitProgress * (3 - 2 * exitProgress);
-          const passageProgress = Math.max(0, Math.min(1, (exitProgress - 0.08) / 0.84));
-          const passageOpacity = Math.min(1, exitProgress * 4) * Math.min(1, (1 - exitProgress) * 8);
+          const passageProgress = Math.max(0, Math.min(1, (exitProgress - 0.12) / 0.82));
+          const passageOpacity = Math.min(1, exitProgress * 3.6) * Math.min(1, (1 - exitProgress) * 9);
 
           chapter.style.setProperty("--scene-progress", sceneProgress.toFixed(3));
           chapter.style.setProperty("--scene-zoom", (1.018 + sceneProgress * 0.055).toFixed(3));
           chapter.style.setProperty("--scene-shift-y", `${(sceneProgress - 0.5) * -2.2}%`);
           chapter.style.setProperty("--party-drift", `${(sceneProgress - 0.5) * 22}px`);
           chapter.style.setProperty("--entry-opacity", (entryProgress * (1 - entryExit)).toFixed(3));
-          chapter.style.setProperty("--entry-x", `${-24 + entryProgress * 72}vw`);
+          chapter.style.setProperty("--entry-x", `${-24 + easedEntry * 76}vw`);
           chapter.style.setProperty("--quest-opacity", (questProgress * (1 - questExit)).toFixed(3));
           chapter.style.setProperty("--quest-y", `${(1 - questProgress) * 24}px`);
           chapter.style.setProperty("--current-x", `${easedExit * -8}%`);
+          chapter.style.setProperty("--scene-art-opacity", (1 - easedExit * 0.42).toFixed(3));
           chapter.style.setProperty("--next-clip", `${100 - easedExit * 100}%`);
           chapter.style.setProperty("--next-x", `${(1 - easedExit) * 8}%`);
+          chapter.style.setProperty("--next-opacity", easedExit.toFixed(3));
           chapter.style.setProperty("--content-opacity", Math.max(0, 1 - exitProgress * 1.5).toFixed(3));
           chapter.style.setProperty("--passage-opacity", passageOpacity.toFixed(3));
           chapter.style.setProperty("--passage-x", `${-24 + passageProgress * 132}vw`);
@@ -261,34 +270,12 @@ export default function Home() {
     const onKeyDown = (event: KeyboardEvent) => {
       if (event.key === "Escape") {
         setMenuOpen(false);
-        return;
-      }
-
-      const target = event.target as HTMLElement | null;
-      if (
-        menuOpen ||
-        target?.tagName === "INPUT" ||
-        target?.tagName === "TEXTAREA" ||
-        target?.tagName === "BUTTON" ||
-        target?.tagName === "A"
-      ) {
-        return;
-      }
-
-      const currentIndex = journeyChapters.findIndex((chapter) => chapter.id === activeId);
-      if ((event.key === "ArrowDown" || event.key === "PageDown") && currentIndex < journeyChapters.length - 1) {
-        event.preventDefault();
-        document.getElementById(journeyChapters[currentIndex + 1].id)?.scrollIntoView({ behavior: "smooth" });
-      }
-      if ((event.key === "ArrowUp" || event.key === "PageUp") && currentIndex > 0) {
-        event.preventDefault();
-        document.getElementById(journeyChapters[currentIndex - 1].id)?.scrollIntoView({ behavior: "smooth" });
       }
     };
 
     window.addEventListener("keydown", onKeyDown);
     return () => window.removeEventListener("keydown", onKeyDown);
-  }, [activeId, menuOpen]);
+  }, []);
 
   const scrollToChapter = (id: string) => {
     setMenuOpen(false);
@@ -321,7 +308,7 @@ export default function Home() {
           <span className="menu-icon" aria-hidden="true"><i /><i /></span>
         </button>
         <div className="progress-track" aria-hidden="true">
-          <div className="progress-value" style={{ transform: `scaleX(${progress})` }} />
+          <div className="progress-value" />
         </div>
       </header>
 

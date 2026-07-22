@@ -17,7 +17,7 @@
 }
 
 html {
-  scroll-behavior: smooth;
+  scroll-behavior: auto;
   background: var(--ink);
 }
 
@@ -3392,6 +3392,7 @@ a {
   height: 36vh;
   opacity: var(--opening-party-opacity);
   transform: translate3d(var(--opening-party-x), 0, 0);
+  transition: opacity 80ms linear, transform 80ms linear;
   will-change: opacity, transform;
   pointer-events: none;
 }
@@ -3660,6 +3661,8 @@ a {
   --entry-x: -24vw;
   --quest-opacity: 0;
   --quest-y: 24px;
+  --scene-art-opacity: 1;
+  --next-opacity: 0;
 }
 
 .opening-next-art,
@@ -3673,8 +3676,7 @@ a {
 .immersive-story .chapter-art img,
 .immersive-story .chapter-reveal img,
 .chapter-next-art img {
-  object-fit: contain;
-  object-position: center;
+  object-fit: cover;
 }
 
 .immersive-story .story-chapter .chapter-art,
@@ -3683,7 +3685,14 @@ a {
 .immersive-story .story-chapter:nth-of-type(even) .chapter-art,
 .immersive-story .story-chapter:nth-of-type(even).is-active .chapter-art,
 .immersive-story .story-chapter:nth-of-type(even) .chapter-reveal {
+  opacity: var(--scene-art-opacity);
   transform: translate3d(var(--current-x), 0, 0);
+  transition: opacity 90ms linear, transform 90ms linear;
+}
+
+.chapter-next-art {
+  opacity: var(--next-opacity);
+  transition: opacity 90ms linear, clip-path 90ms linear, transform 90ms linear;
 }
 
 .immersive-story .chapter-copy,
@@ -3691,6 +3700,7 @@ a {
   width: 21vw;
   opacity: var(--quest-opacity);
   transform: translateY(var(--quest-y));
+  transition: opacity 90ms linear, transform 90ms linear;
   will-change: opacity, transform;
 }
 
@@ -3747,6 +3757,7 @@ a {
   overflow: visible;
   opacity: var(--entry-opacity);
   transform: translate3d(var(--entry-x), 0, 0);
+  transition: opacity 80ms linear, transform 80ms linear;
   will-change: opacity, transform;
   pointer-events: none;
 }
@@ -3777,6 +3788,7 @@ a {
   overflow: visible;
   opacity: var(--quest-opacity);
   transform: translateY(var(--quest-y));
+  transition: opacity 90ms linear, transform 90ms linear;
   will-change: opacity, transform;
 }
 
@@ -3800,10 +3812,12 @@ a {
   width: min(42vw, 650px);
   height: 28vh;
   overflow: visible;
+  transition: transform 80ms linear;
 }
 
 .scene-passage {
   overflow: visible;
+  transition: opacity 90ms linear;
 }
 
 @media (max-width: 720px) {
