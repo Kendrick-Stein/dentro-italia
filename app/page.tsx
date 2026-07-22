@@ -38,7 +38,10 @@ const wordSpotPatterns = [
 ];
 
 type FoundWords = Record<string, string[]>;
-type ActiveWord = { chapterId: string; word: string; meaning: string } | null;
+type ActiveWord = { chapterId: string; word: string } | null;
+
+const posePath = (characterId: string, pose: string) =>
+  `/characters/poses/${characterId}-${pose}.webp`;
 
 function SceneCharacter({
   placement,
@@ -52,12 +55,12 @@ function SceneCharacter({
   const traveler = travelers.find((item) => item.id === placement.id);
   if (!traveler) return null;
 
+  const image = placement.pose ? posePath(placement.id, placement.pose) : traveler.image;
   const style = {
     "--character-left": placement.left,
     "--character-bottom": placement.bottom,
     "--character-size": placement.size,
     "--character-delay": placement.delay ?? "0s",
-    "--character-index": index,
     "--character-float-duration": `${3.8 + index * 0.55}s`,
   } as CSSProperties;
 
@@ -67,7 +70,7 @@ function SceneCharacter({
       style={style}
       aria-hidden="true"
     >
-      <img src={assetUrl(traveler.image)} alt="" />
+      <img src={assetUrl(image)} alt="" />
     </div>
   );
 }
@@ -89,22 +92,53 @@ export default function Home() {
     const updateScrollScene = () => {
       cancelAnimationFrame(animationFrame);
       animationFrame = requestAnimationFrame(() => {
-        const scrollable = document.documentElement.scrollHeight - window.innerHeight;
+        const viewportHeight = window.innerHeight;
+        const scrollable = document.documentElement.scrollHeight - viewportHeight;
         setProgress(scrollable > 0 ? Math.min(1, window.scrollY / scrollable) : 0);
+
+        const intro = document.querySelector<HTMLElement>(".parchment-hero");
+        if (intro) {
+          const rect = intro.getBoundingClientRect();
+          const travel = Math.max(1, intro.offsetHeight - viewportHeight);
+          const rawProgress = Math.max(0, Math.min(1, -rect.top / travel));
+          const eased = rawProgress * rawProgress * (3 - 2 * rawProgress);
+          const reveal = Math.max(0, Math.min(1, (rawProgress - 0.12) / 0.62));
+
+          intro.style.setProperty("--intro-progress", rawProgress.toFixed(3));
+          intro.style.setProperty("--intro-ambient-scale", (1 + rawProgress * 0.08).toFixed(3));
+          intro.style.setProperty("--intro-art-scale", (1.12 - rawProgress * 0.08).toFixed(3));
+          intro.style.setProperty("--parchment-width", `${18 + eased * 82}vw`);
+          intro.style.setProperty("--parchment-height", `${48 + eased * 52}vh`);
+          intro.style.setProperty("--parchment-radius", `${24 - eased * 22}px`);
+          intro.style.setProperty("--intro-art-opacity", reveal.toFixed(3));
+          intro.style.setProperty("--intro-saturation", (0.08 + reveal * 0.94).toFixed(3));
+          intro.style.setProperty("--intro-sepia", (0.95 - reveal * 0.87).toFixed(3));
+          const partyOpacity = Math.max(0, Math.min(1, (rawProgress - 0.46) / 0.34));
+          intro.style.setProperty("--intro-party-opacity", partyOpacity.toFixed(3));
+          intro.style.setProperty("--intro-party-shift", `${(1 - partyOpacity) * 35}px`);
+          intro.style.setProperty("--intro-title-scale", (1 - eased * 0.16).toFixed(3));
+          intro.style.setProperty("--intro-cue-opacity", Math.max(0, 1 - rawProgress * 2.2).toFixed(3));
+          intro.style.setProperty("--roll-depth", `${28 - eased * 23}px`);
+        }
 
         document.querySelectorAll<HTMLElement>(".story-chapter").forEach((chapter) => {
           const rect = chapter.getBoundingClientRect();
           const sceneProgress = Math.max(
             0,
-            Math.min(1, (window.innerHeight - rect.top) / (rect.height + window.innerHeight)),
+            Math.min(1, (viewportHeight - rect.top) / (rect.height + viewportHeight)),
           );
           const focus = 1 - Math.min(1, Math.abs(sceneProgress - 0.5) * 2);
+          const easedFocus = focus * focus * (3 - 2 * focus);
+          const edge = 1 - easedFocus;
 
           chapter.style.setProperty("--scene-progress", sceneProgress.toFixed(3));
-          chapter.style.setProperty("--scene-zoom", (1.04 + sceneProgress * 0.15).toFixed(3));
-          chapter.style.setProperty("--scene-shift-y", `${(sceneProgress - 0.5) * -7}%`);
-          chapter.style.setProperty("--party-drift", `${(sceneProgress - 0.5) * 68}px`);
-          chapter.style.setProperty("--frame-inset", `${1.2 + (1 - focus) * 6.5}%`);
+          chapter.style.setProperty("--scene-zoom", (1.035 + sceneProgress * 0.12).toFixed(3));
+          chapter.style.setProperty("--scene-shift-y", `${(sceneProgress - 0.5) * -5.5}%`);
+          chapter.style.setProperty("--party-drift", `${(sceneProgress - 0.5) * 58}px`);
+          chapter.style.setProperty("--frame-inset", `${1.1 + edge * 5.4}%`);
+          chapter.style.setProperty("--scene-clip", `${edge * 5.5}%`);
+          chapter.style.setProperty("--scene-alpha", Math.min(1, easedFocus * 1.45).toFixed(3));
+          chapter.style.setProperty("--transition-opacity", Math.min(0.82, edge * 1.15).toFixed(3));
         });
       });
     };
@@ -183,38 +217,18 @@ export default function Home() {
     event.currentTarget.style.setProperty("--scene-y", `${y.toFixed(2)}%`);
   };
 
-  const handleHeroPointer = (event: ReactPointerEvent<HTMLElement>) => {
-    const bounds = event.currentTarget.getBoundingClientRect();
-    const x = (event.clientX - bounds.left) / bounds.width - 0.5;
-    const y = (event.clientY - bounds.top) / bounds.height - 0.5;
-    event.currentTarget.style.setProperty("--pointer-x", `${x * 18}px`);
-    event.currentTarget.style.setProperty("--pointer-y", `${y * 12}px`);
-  };
-
-  const speakItalian = (phrase: string) => {
-    if (!("speechSynthesis" in window)) return;
-    window.speechSynthesis.cancel();
-    const utterance = new SpeechSynthesisUtterance(phrase);
-    utterance.lang = "it-IT";
-    utterance.rate = 0.82;
-    window.speechSynthesis.speak(utterance);
-  };
-
-  const discoverWord = (chapter: Chapter, word: string, meaning: string) => {
+  const discoverWord = (chapter: Chapter, word: string) => {
     setFoundWords((current) => {
       const chapterWords = current[chapter.id] ?? [];
       if (chapterWords.includes(word)) return current;
       return { ...current, [chapter.id]: [...chapterWords, word] };
     });
-    setActiveWord({ chapterId: chapter.id, word, meaning });
-    speakItalian(word);
+    setActiveWord({ chapterId: chapter.id, word });
   };
 
   return (
     <main>
-      <a className="skip-link" href="#viaggio">
-        Salta al viaggio
-      </a>
+      <a className="skip-link" href="#viaggio">Vai al viaggio</a>
 
       <header className="site-header">
         <a className="wordmark" href="#top" aria-label="Dentro l’Italia, torna all’inizio">
@@ -225,59 +239,55 @@ export default function Home() {
           <span>{activeChapter.city}</span>
           <span>PAROLE {foundTotal} / {wordTotal}</span>
         </div>
-        <button className="menu-button" type="button" onClick={() => setMenuOpen(true)}>
+        <button className="menu-button" type="button" onClick={() => setMenuOpen(true)} aria-label="Apri la mappa">
           <span>MAPPA</span>
-          <span className="menu-icon" aria-hidden="true">
-            <i />
-            <i />
-          </span>
+          <span className="menu-icon" aria-hidden="true"><i /><i /></span>
         </button>
         <div className="progress-track" aria-hidden="true">
           <div className="progress-value" style={{ transform: `scaleX(${progress})` }} />
         </div>
       </header>
 
-      <section id="top" className="hero interactive-hero" onPointerMove={handleHeroPointer}>
-        <div className="hero-art" aria-hidden="true">
-          <img src={assetUrl("/artworks/school-of-athens.jpg")} alt="" fetchPriority="high" />
-        </div>
-        <div className="hero-vignette" aria-hidden="true" />
-        <div className="hero-grid" aria-hidden="true" />
+      <section id="top" className="parchment-hero">
+        <div className="parchment-sticky">
+          <div className="parchment-ambient" aria-hidden="true" />
+          <div className="parchment-shell">
+            <div className="parchment-roll parchment-roll-left" aria-hidden="true" />
+            <div className="parchment-roll parchment-roll-right" aria-hidden="true" />
+            <div className="parchment-sheet">
+              <div className="parchment-art" aria-hidden="true">
+                <img src={assetUrl("/artworks/school-of-athens.jpg")} alt="" fetchPriority="high" />
+              </div>
+              <div className="parchment-veil" aria-hidden="true" />
+              <div className="parchment-grain" aria-hidden="true" />
 
-        <div className="hero-kicker">
-          <span>SCORRI · ESPLORA · ASCOLTA</span>
-        </div>
+              <div className="parchment-copy">
+                <span>UNA STORIA DI LINGUA, ARTE E AMICIZIA</span>
+                <h1><strong>DENTRO</strong><em>L’ITALIA</em></h1>
+              </div>
 
-        <div className="hero-copy">
-          <p className="hero-overline">Una lingua dentro l’arte</p>
-          <h1>
-            <span>DENTRO</span>
-            <span className="serif-line">l’Italia.</span>
-          </h1>
-          <p className="hero-deck">滚动穿行，点击画中的光点，听见意大利语。</p>
-        </div>
+              <div className="parchment-party" aria-label="Il maestro e tre studenti">
+                {travelers.map((traveler, index) => (
+                  <img
+                    key={traveler.id}
+                    src={assetUrl(posePath(traveler.id, "walk"))}
+                    alt={traveler.title}
+                    style={{ "--intro-person": index } as CSSProperties}
+                  />
+                ))}
+              </div>
 
-        <div className="hero-party" aria-label="一位男老师和三位同学">
-          {travelers.map((traveler, index) => (
-            <div className="hero-person" key={traveler.id} style={{ "--person-index": index } as CSSProperties}>
-              <img src={assetUrl(traveler.image)} alt={traveler.titleZh} />
+              <button className="parchment-enter" type="button" onClick={() => scrollToChapter(journeyChapters[0].id)}>
+                ENTRA NEL VIAGGIO ↓
+              </button>
             </div>
-          ))}
-        </div>
-
-        <button className="enter-button" type="button" onClick={() => scrollToChapter(journeyChapters[0].id)}>
-          <span>ENTRA NEL QUADRO</span>
-          <span aria-hidden="true">↓</span>
-        </button>
-
-        <div className="hero-caption">
-          <span>THE SCHOOL OF ATHENS</span>
-          <span>RAPHAEL · 1509—1511</span>
+          </div>
+          <div className="unroll-cue" aria-hidden="true"><span>SCORRI PER APRIRE</span><i /></div>
         </div>
       </section>
 
-      <section id="viaggio" className="story immersive-story" aria-label="意大利语互动旅程">
-        <aside className="route-rail" aria-label="旅程地图">
+      <section id="viaggio" className="story immersive-story" aria-label="Viaggio interattivo in italiano">
+        <aside className="route-rail" aria-label="Mappa del viaggio">
           <span className="route-title">IL VIAGGIO</span>
           <div className="route-line" aria-hidden="true" />
           {journeyChapters.map((chapter, index) => (
@@ -286,7 +296,7 @@ export default function Home() {
               type="button"
               className={activeId === chapter.id ? "is-active" : ""}
               onClick={() => scrollToChapter(chapter.id)}
-              aria-label={`前往第 ${index + 1} 幕：${chapter.title}`}
+              aria-label={`Vai alla scena ${index + 1}: ${chapter.title}`}
             >
               <i aria-hidden="true" />
               <span>{String(index + 1).padStart(2, "0")}</span>
@@ -298,12 +308,19 @@ export default function Home() {
           const isActive = activeId === chapter.id;
           const chapterFound = foundWords[chapter.id] ?? [];
           const isComplete = chapterFound.length === chapter.lesson.words.length;
+          const chapterStyle = {
+            "--chapter-saturation": (0.24 + chapterIndex * 0.11).toFixed(2),
+            "--reveal-saturation": (0.82 + chapterIndex * 0.065).toFixed(2),
+            "--chapter-sepia": Math.max(0.08, 0.48 - chapterIndex * 0.06).toFixed(2),
+            "--reveal-sepia": Math.max(0.02, 0.14 - chapterIndex * 0.018).toFixed(2),
+          } as CSSProperties;
 
           return (
             <article
               id={chapter.id}
               className={`story-chapter ${isActive ? "is-active" : ""} ${isComplete ? "is-complete" : ""}`}
               key={chapter.id}
+              style={chapterStyle}
             >
               <div className="chapter-sticky" onPointerMove={moveLight}>
                 <div className="chapter-art" aria-hidden="true">
@@ -324,6 +341,7 @@ export default function Home() {
                 </div>
                 <div className="chapter-wash" aria-hidden="true" />
                 <div className="chapter-light" aria-hidden="true" />
+                <div className="scene-transition" aria-hidden="true" />
                 <div className="portal-frame" aria-hidden="true" />
 
                 <div className="chapter-topline">
@@ -340,7 +358,6 @@ export default function Home() {
                 <div className="chapter-copy">
                   <p>{chapter.stage}</p>
                   <h2>{chapter.title}</h2>
-                  <h3>{chapter.titleZh}</h3>
                 </div>
 
                 <div className="scene-cast">
@@ -354,8 +371,8 @@ export default function Home() {
                   ))}
                 </div>
 
-                <div className="scene-words" aria-label="画中的意大利语词语">
-                  {chapter.lesson.words.map(([word, meaning], wordIndex) => {
+                <div className="scene-words" aria-label="Parole nascoste nel quadro">
+                  {chapter.lesson.words.map(([word], wordIndex) => {
                     const found = chapterFound.includes(word);
                     const position = wordSpotPatterns[chapterIndex][wordIndex];
                     return (
@@ -364,12 +381,11 @@ export default function Home() {
                         type="button"
                         key={word}
                         style={{ "--word-left": position.left, "--word-top": position.top } as CSSProperties}
-                        onClick={() => discoverWord(chapter, word, meaning)}
-                        aria-label={found ? `${word}：${meaning}，再次朗读` : `发现第 ${wordIndex + 1} 个词语`}
+                        onClick={() => discoverWord(chapter, word)}
+                        aria-label={found ? `Parola trovata: ${word}` : `Trova la parola ${wordIndex + 1}`}
                       >
                         <span className="spark-ring" aria-hidden="true" />
                         <strong>{found ? word : wordIndex + 1}</strong>
-                        {found && <small>{meaning}</small>}
                       </button>
                     );
                   })}
@@ -379,28 +395,15 @@ export default function Home() {
                   <div className="word-reveal" role="status">
                     <span>PAROLA TROVATA</span>
                     <strong>{activeWord.word}</strong>
-                    <small>{activeWord.meaning}</small>
                   </div>
                 )}
 
-                <button
-                  className="scene-phrase"
-                  type="button"
-                  onClick={() => speakItalian(chapter.lesson.phrase)}
-                  aria-label={`朗读：${chapter.lesson.phrase}`}
-                >
-                  <span className="sound-mark" aria-hidden="true">◖))</span>
-                  <span>
-                    <small>ASCOLTA</small>
-                    <strong>{chapter.lesson.phrase}</strong>
-                    <em>{chapter.lesson.translation}</em>
-                  </span>
-                </button>
-
-                <div className="scroll-cue" aria-hidden="true">
-                  <span>SCORRI</span>
-                  <i />
+                <div className="scene-phrase phrase-only">
+                  <small>FRASE</small>
+                  <strong>{chapter.lesson.phrase}</strong>
                 </div>
+
+                <div className="scroll-cue" aria-hidden="true"><span>SCORRI</span><i /></div>
               </div>
             </article>
           );
@@ -413,7 +416,7 @@ export default function Home() {
           {travelers.map((traveler, index) => (
             <img
               key={traveler.id}
-              src={assetUrl(traveler.image)}
+              src={assetUrl(posePath(traveler.id, "depart"))}
               alt=""
               style={{ "--finale-index": index, "--finale-delay": `${index * 100}ms` } as CSSProperties}
             />
@@ -427,41 +430,29 @@ export default function Home() {
       </section>
 
       <footer className="site-footer compact-footer">
-        <div>
-          <span>DENTRO L’ITALIA</span>
-          <p>Una storia di lingua, arte e amicizia.</p>
-        </div>
+        <div><span>DENTRO L’ITALIA</span><p>Una storia di lingua, arte e amicizia.</p></div>
         <details>
-          <summary>CREDITS / 作品来源</summary>
+          <summary>CREDITI</summary>
           <div className="credit-list">
             {credits.map((credit) => (
-              <a key={credit.url} href={credit.url} target="_blank" rel="noreferrer">
-                {credit.label} ↗
-              </a>
+              <a key={credit.url} href={credit.url} target="_blank" rel="noreferrer">{credit.label} ↗</a>
             ))}
           </div>
         </details>
       </footer>
 
       {menuOpen && (
-        <div className="index-overlay" role="dialog" aria-modal="true" aria-label="旅程地图">
+        <div className="index-overlay" role="dialog" aria-modal="true" aria-label="Mappa del viaggio">
           <div className="index-header">
             <span>MAPPA DEL VIAGGIO</span>
-            <button type="button" onClick={() => setMenuOpen(false)} autoFocus>
-              CHIUDI ×
-            </button>
+            <button type="button" onClick={() => setMenuOpen(false)} autoFocus>CHIUDI ×</button>
           </div>
           <div className="index-list">
             {journeyChapters.map((chapter, index) => (
               <button type="button" key={chapter.id} onClick={() => scrollToChapter(chapter.id)}>
                 <span>{String(index + 1).padStart(2, "0")}</span>
-                <div>
-                  <strong>{chapter.title}</strong>
-                  <small>{chapter.city}</small>
-                </div>
-                <div className="index-thumb" aria-hidden="true">
-                  <img src={assetUrl(chapter.image)} alt="" />
-                </div>
+                <div><strong>{chapter.title}</strong><small>{chapter.city}</small></div>
+                <div className="index-thumb" aria-hidden="true"><img src={assetUrl(chapter.image)} alt="" /></div>
                 <i aria-hidden="true">→</i>
               </button>
             ))}

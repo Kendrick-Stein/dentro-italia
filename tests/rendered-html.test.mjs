@@ -4,12 +4,17 @@ import test from "node:test";
 
 test("exports the finished Italian journey as static HTML", async () => {
   const html = await readFile(new URL("../out/index.html", import.meta.url), "utf8");
-  assert.match(html, /<title>Dentro l’Italia — 我们的意大利语旅程<\/title>/i);
+  assert.match(html, /<title>Dentro l’Italia — Un viaggio nella lingua e nell’arte<\/title>/i);
   assert.match(html, /DENTRO/);
-  assert.match(html, /SCORRI · ESPLORA · ASCOLTA/);
-  assert.match(html, /ENTRA NEL QUADRO/);
+  assert.match(html, /SCORRI PER APRIRE/);
+  assert.match(html, /UNA STORIA DI LINGUA, ARTE E AMICIZIA/);
+  assert.match(html, /ENTRA NEL VIAGGIO/);
   assert.match(html, /Mi chiamo… Piacere!/);
-  assert.match(html, /Grazie per questo viaggio/);
+  assert.match(html, /Grazie per/);
+  assert.match(html, /questo viaggio/);
+  assert.match(html, /\/characters\/poses\/teacher-action\.webp/);
+  assert.doesNotMatch(html, /[\u3400-\u9fff]/);
+  assert.doesNotMatch(html, /ASCOLTA|speechSynthesis/);
   assert.doesNotMatch(html, /ARCHIVIO \/ OPERE INCONTRATE/);
   assert.doesNotMatch(html, /codex-preview|react-loading-skeleton|Your site is taking shape/i);
 });
@@ -23,11 +28,15 @@ test("ships interaction, accessibility, and social assets", async () => {
     readFile(new URL("../package.json", import.meta.url), "utf8"),
   ]);
 
-  assert.match(page, /speechSynthesis/);
+  assert.doesNotMatch(page, /speechSynthesis|SpeechSynthesis|speakItalian/);
   assert.match(page, /aria-modal="true"/);
   assert.match(page, /className="skip-link"/);
   assert.match(page, /className={`word-spark/);
   assert.match(page, /className="chapter-reveal"/);
+  assert.match(page, /className="scene-transition"/);
+  assert.match(page, /className="parchment-hero"/);
+  assert.match(page, /moveLight/);
+  assert.match(page, /posePath/);
   assert.match(page, /setFoundWords/);
   assert.match(layout, /openGraph/);
   assert.match(layout, /twitter/);
@@ -41,6 +50,10 @@ test("ships interaction, accessibility, and social assets", async () => {
     access(new URL("../out/og.png", import.meta.url)),
     access(new URL("../out/characters/teacher.webp", import.meta.url)),
     access(new URL("../out/characters/knight.webp", import.meta.url)),
+    access(new URL("../out/characters/poses/teacher-action.webp", import.meta.url)),
+    access(new URL("../out/characters/poses/knight-walk.webp", import.meta.url)),
+    access(new URL("../out/characters/poses/cartographer-study.webp", import.meta.url)),
+    access(new URL("../out/characters/poses/programmer-depart.webp", import.meta.url)),
     access(new URL("../out/artworks/school-of-athens.jpg", import.meta.url)),
   ]);
 });

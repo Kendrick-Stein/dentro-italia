@@ -5,8 +5,8 @@ const basePath = process.env.NEXT_PUBLIC_BASE_PATH ?? "";
 const siteOrigin = process.env.NEXT_PUBLIC_SITE_ORIGIN ?? "http://localhost:3000";
 const pageUrl = `${siteOrigin}${basePath}/`;
 const cardUrl = `${siteOrigin}${basePath}/og.png`;
-const title = "Dentro l’Italia — 我们的意大利语旅程";
-const description = "一位男老师、三位学生，穿行在意大利名画与雕塑中的互动式语言学习故事。";
+const title = "Dentro l’Italia — Un viaggio nella lingua e nell’arte";
+const description = "Un maestro e tre studenti attraversano l’arte italiana in un viaggio interattivo.";
 
 export const metadata: Metadata = {
   title,
@@ -29,7 +29,7 @@ export const metadata: Metadata = {
         url: cardUrl,
         width: 1200,
         height: 630,
-        alt: "Dentro l’Italia — four people travelling through Italian art",
+        alt: "Dentro l’Italia — quattro viaggiatori attraversano l’arte italiana",
       },
     ],
   },
@@ -43,7 +43,7 @@ export const metadata: Metadata = {
 
 export default function RootLayout({ children }: Readonly<{ children: React.ReactNode }>) {
   return (
-    <html lang="zh-CN">
+    <html lang="it">
       <body>{children}</body>
     </html>
   );

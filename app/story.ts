@@ -1,4 +1,5 @@
 export type TravelerId = "teacher" | "knight" | "cartographer" | "programmer";
+export type CharacterPose = "walk" | "action" | "study" | "depart";
 
 export type Traveler = {
   id: TravelerId;
@@ -13,6 +14,7 @@ export type Traveler = {
 
 export type CharacterPlacement = {
   id: TravelerId;
+  pose?: CharacterPose;
   left: string;
   bottom: string;
   size: string;
@@ -143,10 +145,10 @@ export const chapters: Chapter[] = [
       ],
     },
     characters: [
-      { id: "teacher", left: "15%", bottom: "8%", size: "13%" },
-      { id: "cartographer", left: "29%", bottom: "8%", size: "11%", delay: ".12s" },
-      { id: "knight", left: "62%", bottom: "8%", size: "9%", delay: ".2s", flip: true },
-      { id: "programmer", left: "71%", bottom: "7%", size: "10%", delay: ".28s", flip: true },
+      { id: "teacher", pose: "action", left: "15%", bottom: "8%", size: "13%" },
+      { id: "cartographer", pose: "action", left: "29%", bottom: "8%", size: "11%", delay: ".12s" },
+      { id: "knight", pose: "study", left: "62%", bottom: "8%", size: "9%", delay: ".2s", flip: true },
+      { id: "programmer", pose: "action", left: "71%", bottom: "7%", size: "10%", delay: ".28s", flip: true },
     ],
   },
   {
@@ -174,10 +176,10 @@ export const chapters: Chapter[] = [
       ],
     },
     characters: [
-      { id: "knight", left: "10%", bottom: "6%", size: "11%" },
-      { id: "programmer", left: "22%", bottom: "6%", size: "10%", delay: ".1s" },
-      { id: "teacher", left: "74%", bottom: "7%", size: "12%", delay: ".18s", flip: true },
-      { id: "cartographer", left: "84%", bottom: "6%", size: "9%", delay: ".26s", flip: true },
+      { id: "knight", pose: "walk", left: "10%", bottom: "6%", size: "11%" },
+      { id: "programmer", pose: "study", left: "22%", bottom: "6%", size: "10%", delay: ".1s" },
+      { id: "teacher", pose: "action", left: "74%", bottom: "7%", size: "12%", delay: ".18s", flip: true },
+      { id: "cartographer", pose: "walk", left: "84%", bottom: "6%", size: "9%", delay: ".26s", flip: true },
     ],
   },
   {
@@ -236,10 +238,10 @@ export const chapters: Chapter[] = [
       ],
     },
     characters: [
-      { id: "teacher", left: "33%", bottom: "7%", size: "13%" },
-      { id: "programmer", left: "56%", bottom: "7%", size: "11%", delay: ".1s", flip: true },
-      { id: "knight", left: "68%", bottom: "7%", size: "9%", delay: ".18s", flip: true },
-      { id: "cartographer", left: "76%", bottom: "7%", size: "9%", delay: ".26s", flip: true },
+      { id: "teacher", pose: "action", left: "33%", bottom: "7%", size: "13%" },
+      { id: "programmer", pose: "action", left: "56%", bottom: "7%", size: "11%", delay: ".1s", flip: true },
+      { id: "knight", pose: "action", left: "68%", bottom: "7%", size: "9%", delay: ".18s", flip: true },
+      { id: "cartographer", pose: "study", left: "76%", bottom: "7%", size: "9%", delay: ".26s", flip: true },
     ],
   },
   {
@@ -267,10 +269,10 @@ export const chapters: Chapter[] = [
       ],
     },
     characters: [
-      { id: "cartographer", left: "19%", bottom: "5%", size: "12%" },
-      { id: "programmer", left: "32%", bottom: "5%", size: "11%", delay: ".1s" },
-      { id: "knight", left: "70%", bottom: "6%", size: "11%", delay: ".18s", flip: true },
-      { id: "teacher", left: "82%", bottom: "7%", size: "12%", delay: ".26s", flip: true },
+      { id: "cartographer", pose: "study", left: "19%", bottom: "5%", size: "12%" },
+      { id: "programmer", pose: "study", left: "32%", bottom: "5%", size: "11%", delay: ".1s" },
+      { id: "knight", pose: "action", left: "70%", bottom: "6%", size: "11%", delay: ".18s", flip: true },
+      { id: "teacher", pose: "study", left: "82%", bottom: "7%", size: "12%", delay: ".26s", flip: true },
     ],
   },
   {
@@ -298,10 +300,10 @@ export const chapters: Chapter[] = [
       ],
     },
     characters: [
-      { id: "cartographer", left: "9%", bottom: "5%", size: "11%" },
-      { id: "teacher", left: "19%", bottom: "6%", size: "12%", delay: ".08s" },
-      { id: "knight", left: "72%", bottom: "5%", size: "10%", delay: ".16s", flip: true },
-      { id: "programmer", left: "82%", bottom: "5%", size: "10%", delay: ".24s", flip: true },
+      { id: "cartographer", pose: "walk", left: "9%", bottom: "5%", size: "11%" },
+      { id: "teacher", pose: "walk", left: "19%", bottom: "6%", size: "12%", delay: ".08s" },
+      { id: "knight", pose: "walk", left: "72%", bottom: "5%", size: "10%", delay: ".16s", flip: true },
+      { id: "programmer", pose: "walk", left: "82%", bottom: "5%", size: "10%", delay: ".24s", flip: true },
     ],
   },
   {
@@ -329,10 +331,10 @@ export const chapters: Chapter[] = [
       ],
     },
     characters: [
-      { id: "knight", left: "18%", bottom: "5%", size: "13%" },
-      { id: "teacher", left: "30%", bottom: "6%", size: "11%", delay: ".08s" },
-      { id: "cartographer", left: "73%", bottom: "5%", size: "9%", delay: ".16s", flip: true },
-      { id: "programmer", left: "82%", bottom: "5%", size: "9%", delay: ".24s", flip: true },
+      { id: "knight", pose: "depart", left: "18%", bottom: "5%", size: "13%" },
+      { id: "teacher", pose: "action", left: "30%", bottom: "6%", size: "11%", delay: ".08s" },
+      { id: "cartographer", pose: "depart", left: "73%", bottom: "5%", size: "9%", delay: ".16s", flip: true },
+      { id: "programmer", pose: "action", left: "82%", bottom: "5%", size: "9%", delay: ".24s", flip: true },
     ],
   },
   {
@@ -422,10 +424,10 @@ export const chapters: Chapter[] = [
       ],
     },
     characters: [
-      { id: "teacher", left: "31%", bottom: "5%", size: "12%" },
-      { id: "knight", left: "43%", bottom: "4%", size: "9%", delay: ".08s" },
-      { id: "cartographer", left: "52%", bottom: "4%", size: "9%", delay: ".16s" },
-      { id: "programmer", left: "61%", bottom: "4%", size: "9%", delay: ".24s" },
+      { id: "teacher", pose: "depart", left: "31%", bottom: "5%", size: "12%" },
+      { id: "knight", pose: "depart", left: "43%", bottom: "4%", size: "9%", delay: ".08s" },
+      { id: "cartographer", pose: "depart", left: "52%", bottom: "4%", size: "9%", delay: ".16s" },
+      { id: "programmer", pose: "depart", left: "61%", bottom: "4%", size: "9%", delay: ".24s" },
     ],
   },
 ];
